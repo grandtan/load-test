@@ -41,7 +41,7 @@ func main() {
 
 	// Read all rows from the CSV file and get the first 3 shop_ids
 	var shopIds []string
-	for i := 0; i < 20000; i++ { // Limiting to the first 3 entries
+	for i := 0; i < 100000; i++ { // Limiting to the first 3 entries
 		record, err := reader.Read()
 		if err == io.EOF {
 			break
