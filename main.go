@@ -101,7 +101,7 @@ func main() {
 	elapsedTime := time.Since(startTime)
 
 	// Log the response time
-	log.Printf("Total response time: %v", elapsedTime)
+	log.Printf("Total response time: %v %v", elapsedTime, resp)
 
 	// Read the response
 	if resp.StatusCode == http.StatusOK {
