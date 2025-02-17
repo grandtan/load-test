@@ -41,7 +41,7 @@ func main() {
 
 	// Read all rows from the CSV file and get the first 3 shop_ids
 	var shopIds []string
-	for i := 0; i < 600; i++ { // Limiting to the first 3 entries
+	for i := 0; i < 100000; i++ { // Limiting to the first 3 entries
 		record, err := reader.Read()
 		if err == io.EOF {
 			break
@@ -76,6 +76,11 @@ func main() {
 	// Send the POST request with the updated URL
 	url := "http://core-lt-quota-manage.core-lt.svc.cluster.local:8080/core/quota/api/v1/search-info-shop"
 	client := &http.Client{
+		Transport: &http.Transport{
+			IdleConnTimeout:     90 * time.Second, // Timeout for idle connections
+			MaxIdleConns:        10,               // Max number of idle connections
+			MaxIdleConnsPerHost: 10,               // Max idle connections per host
+		},
 		Timeout: time.Second * 120, // เพิ่มเวลา timeout เป็น 2 นาที
 	}
 
