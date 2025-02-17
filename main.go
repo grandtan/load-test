@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil" // เพิ่มการใช้งาน ioutil
 	"log"
 	"net/http"
 	"os"
@@ -98,7 +99,16 @@ func main() {
 	// Log the response time
 	log.Printf("Total response time: %v", elapsedTime)
 
-	// Read the response
+	// Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("Error reading response body: %v", err)
+	}
+
+	// Print the response body
+	fmt.Printf("Response Body: %s\n", string(body))
+
+	// Check the response status
 	if resp.StatusCode == http.StatusOK {
 		fmt.Println("API request successful")
 	} else {
