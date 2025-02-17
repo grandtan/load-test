@@ -1,28 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"encoding/csv"
-	"encoding/json"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"os"
-	"time"
+	"strings"
 )
-
-type Pagination struct {
-	Page    int `json:"page"`
-	PerPage int `json:"perPage"`
-}
-
-type RequestBody struct {
-	RequireExport bool       `json:"requireExport"`
-	ShopIds       []string   `json:"shopId"`
-	RoundDate     string     `json:"roundDate"`
-	Pagination    Pagination `json:"pagination"`
-}
 
 func main() {
 	// Open the CSV file
@@ -39,83 +23,44 @@ func main() {
 		log.Fatalf("Error reading CSV file: %v", err)
 	}
 
-	// Read all rows from the CSV file
+	// Create a slice to store shop IDs
 	var shopIds []string
+
+	// Read all rows from the CSV file
 	for {
 		record, err := reader.Read()
-		if err == io.EOF {
-			break
-		}
 		if err != nil {
-			log.Fatalf("Error reading CSV file: %v", err)
+			break // End of file
 		}
 
-		// Extract the shop_id from each row and add it to the slice
-		shopIds = append(shopIds, record[1]) // Assuming shop_id is in the second column
+		// Assuming the shop_id is in the second column (index 1)
+		if len(record) > 1 {
+			shopIds = append(shopIds, record[1]) // Add shop_id to the slice
+		}
 	}
 
-	// Construct the API payload
-	payload := RequestBody{
-		RequireExport: false,
-		ShopIds:       shopIds,
-		RoundDate:     "2024-09-01", // Adjust as needed
-		Pagination: Pagination{
-			Page:    1,
-			PerPage: 10,
-		},
-	}
+	// Prepare the curl command format
+	shopIdsStr := strings.Join(shopIds, `","`) // Join shopIds as a comma-separated list
+	curlCommand := fmt.Sprintf(`
+curl --location 'http://core-lt-quota-manage.core-lt.svc.cluster.local:8080/core/quota/api/v1/search-info-shop' \
+--header 'Content-Type: application/json' \
+--data '{
+        "requireExport": false,
+        "shopId": ["%s"],
+        "roundDate": "2024-09-01",
+        "pagination": {
+          "page": 1,
+          "perPage": 10
+        }
+      }'`, shopIdsStr)
 
-	// Convert payload to JSON
-	data, err := json.Marshal(payload)
+	// Write the curl command to a file
+	outputFile := "generated_curl_command.sh"
+	err = os.WriteFile(outputFile, []byte(curlCommand), 0644)
 	if err != nil {
-		log.Fatalf("Error marshalling payload: %v", err)
+		log.Fatalf("Error writing curl command to file: %v", err)
 	}
 
-	// Record the start time
-	startTime := time.Now()
-
-	// Create a new HTTP client with a timeout of 30 seconds
-	client := &http.Client{
-		Timeout: time.Second * 30,
-	}
-
-	// Send the POST request with the updated URL
-	url := "http://core-lt-quota-manage.core-lt.svc.cluster.local:8080/core/quota/api/v1/search-info-shop"
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
-	if err != nil {
-		log.Fatalf("Error creating request: %v", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	// Make the request
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatalf("Error sending request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	// Log the response status for debugging
-	log.Printf("Response Status: %s", resp.Status)
-
-	// Read the response body
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalf("Error reading response body: %v", err)
-	}
-
-	// Log the response body for debugging
-	log.Printf("Response Body: %s", body)
-
-	// Record the end time and calculate elapsed time
-	elapsedTime := time.Since(startTime)
-
-	// Log the response time
-	log.Printf("Response time: %v", elapsedTime)
-
-	// Check the response status
-	if resp.StatusCode == http.StatusOK {
-		fmt.Println("API request successful")
-	} else {
-		fmt.Printf("API request failed with status: %s\n", resp.Status)
-	}
+	// Confirm the file creation
+	fmt.Printf("Curl command successfully generated: %s\n", outputFile)
 }
