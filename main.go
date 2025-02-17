@@ -39,9 +39,9 @@ func main() {
 		log.Fatalf("Error reading CSV file: %v", err)
 	}
 
-	// Read all rows from the CSV file
+	// Read all rows from the CSV file and get the first 3 shop_ids
 	var shopIds []string
-	for {
+	for i := 0; i < 3; i++ { // Limiting to the first 3 entries
 		record, err := reader.Read()
 		if err == io.EOF {
 			break
@@ -49,12 +49,11 @@ func main() {
 		if err != nil {
 			log.Fatalf("Error reading CSV file: %v", err)
 		}
-
 		// Extract the shop_id from each row and add it to the slice
 		shopIds = append(shopIds, record[1]) // Assuming shop_id is in the second column
 	}
 
-	// Construct the API payload with all shopIds
+	// Construct the API payload with the first 3 shopIds
 	payload := RequestBody{
 		RequireExport: false,
 		ShopIds:       shopIds,
