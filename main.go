@@ -76,7 +76,10 @@ func main() {
 
 	// Send the POST request with the updated URL
 	url := "http://core-lt-quota-manage.core-lt.svc.cluster.local:8080/core/quota/api/v1/search-info-shop"
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: time.Second * 120, // เพิ่มเวลา timeout เป็น 2 นาที
+	}
+
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {
 		log.Fatalf("Error creating request: %v", err)
