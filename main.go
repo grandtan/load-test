@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil" // เพิ่มการใช้งาน ioutil
 	"log"
 	"net/http"
 	"os"
@@ -40,9 +39,9 @@ func main() {
 		log.Fatalf("Error reading CSV file: %v", err)
 	}
 
-	// Read all rows from the CSV file and get the first 3 shop_ids
+	// Read all rows from the CSV file
 	var shopIds []string
-	for i := 0; i < 3; i++ { // Limiting to the first 3 entries
+	for {
 		record, err := reader.Read()
 		if err == io.EOF {
 			break
@@ -50,11 +49,12 @@ func main() {
 		if err != nil {
 			log.Fatalf("Error reading CSV file: %v", err)
 		}
+
 		// Extract the shop_id from each row and add it to the slice
 		shopIds = append(shopIds, record[1]) // Assuming shop_id is in the second column
 	}
 
-	// Construct the API payload with the first 3 shopIds
+	// Construct the API payload with all shopIds
 	payload := RequestBody{
 		RequireExport: false,
 		ShopIds:       shopIds,
@@ -99,16 +99,7 @@ func main() {
 	// Log the response time
 	log.Printf("Total response time: %v", elapsedTime)
 
-	// Read the response body
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalf("Error reading response body: %v", err)
-	}
-
-	// Print the response body
-	fmt.Printf("Response Body: %s\n", string(body))
-
-	// Check the response status
+	// Read the response
 	if resp.StatusCode == http.StatusOK {
 		fmt.Println("API request successful")
 	} else {
