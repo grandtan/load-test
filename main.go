@@ -55,7 +55,7 @@ curl --location 'http://core-lt-quota-manage.core-lt.svc.cluster.local:8080/core
       }'`, shopIdsStr)
 
 	// Write the curl command to a file
-	outputFile := "generated_curl_command.sh"
+	outputFile := "generated_curl_command.txt"
 	err = os.WriteFile(outputFile, []byte(curlCommand), 0644)
 	if err != nil {
 		log.Fatalf("Error writing curl command to file: %v", err)
