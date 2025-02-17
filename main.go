@@ -84,11 +84,20 @@ func main() {
 
 	// Make the request
 	client := &http.Client{}
+	// After making the request
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalf("Error sending request: %v", err)
 	}
 	defer resp.Body.Close()
+
+	// Log response status and body for debugging
+	log.Printf("Response Status: %s", resp.Status)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("Error reading response body: %v", err)
+	}
+	log.Printf("Response Body: %s", body)
 
 	// Record the end time and calculate elapsed time
 	elapsedTime := time.Since(startTime)
