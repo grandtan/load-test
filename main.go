@@ -74,6 +74,11 @@ func main() {
 	// Record the start time
 	startTime := time.Now()
 
+	// Create a new HTTP client with a timeout of 30 seconds
+	client := &http.Client{
+		Timeout: time.Second * 30,
+	}
+
 	// Send the POST request with the updated URL
 	url := "http://core-lt-quota-manage.core-lt.svc.cluster.local:8080/core/quota/api/v1/search-info-shop"
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
@@ -83,20 +88,22 @@ func main() {
 	req.Header.Set("Content-Type", "application/json")
 
 	// Make the request
-	client := &http.Client{}
-	// After making the request
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalf("Error sending request: %v", err)
 	}
 	defer resp.Body.Close()
 
-	// Log response status and body for debugging
+	// Log the response status for debugging
 	log.Printf("Response Status: %s", resp.Status)
+
+	// Read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalf("Error reading response body: %v", err)
 	}
+
+	// Log the response body for debugging
 	log.Printf("Response Body: %s", body)
 
 	// Record the end time and calculate elapsed time
@@ -105,7 +112,7 @@ func main() {
 	// Log the response time
 	log.Printf("Response time: %v", elapsedTime)
 
-	// Read the response
+	// Check the response status
 	if resp.StatusCode == http.StatusOK {
 		fmt.Println("API request successful")
 	} else {
