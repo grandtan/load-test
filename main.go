@@ -75,7 +75,7 @@ func main() {
 	startTime := time.Now()
 
 	// Send the POST request with the updated URL
-	url := "http://core-lt-quota-manage.core-lt.svc.cluster.local:8080/core/quota/api/v1/search-info-shop"
+	url := "http://core-lt-quota-manage.loadtest.svc:8080/core/quota/api/v1/search-info-shop"
 	client := &http.Client{
 		Transport: &http.Transport{
 			IdleConnTimeout:     90 * time.Second, // Timeout for idle connections
