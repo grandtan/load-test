@@ -58,7 +58,7 @@ func main() {
 	payload := RequestBody{
 		RequireExport: false,
 		ShopIds:       shopIds,
-		RoundDate:     "2024-09-01", // Adjust as needed
+		RoundDate:     "2025-02-19", // Adjust as needed
 		Pagination: Pagination{
 			Page:    1,
 			PerPage: 10,
